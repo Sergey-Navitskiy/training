@@ -22,3 +22,14 @@ const inputDistance = document.querySelector(".form__input--distance");
 const inputDuration = document.querySelector(".form__input--duration");
 const inputCadence = document.querySelector(".form__input--cadence");
 const inputElevation = document.querySelector(".form__input--elevation");
+
+navigator.geolocation.getCurrentPosition(
+function(pos){
+  const {latitude} = pos.coords
+  const {longitude} = pos.coords
+  console.log(pos)
+
+},
+function(){
+  alert('Вы не предоставили доступ к своей геолокации')
+})
