@@ -27,9 +27,17 @@ navigator.geolocation.getCurrentPosition(
 function(pos){
   const {latitude} = pos.coords
   const {longitude} = pos.coords
-  console.log(pos)
+  const coord = [latitude,longitude]
+  const map = L.map('map').setView(coord, 13);
 
-},
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(map);
+
+  L.marker(coord).addTo(map)
+    .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
+    .openPopup();
+  },
 function(){
   alert('Вы не предоставили доступ к своей геолокации')
 })
