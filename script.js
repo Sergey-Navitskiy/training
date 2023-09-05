@@ -1,20 +1,5 @@
 "use strict";
 
-const months = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
-
 const form = document.querySelector(".form");
 const containerWorkouts = document.querySelector(".workouts");
 const inputType = document.querySelector(".form__input--type");
@@ -31,13 +16,21 @@ class Training {
     this.distance = distance;
     this.duration = duration;
   }
+  _setDescription() {
+    const months = ["January","February","March","April","May","June","July","August","September","October","November","December",];
+    this.description = `${this.type[0].toUpperCase()}${this.type.slice(1)} ${
+      months[this.date.getMonth()]
+    } ${this.date.getDate()}`;
+  }
 }
 
 class Running extends Training {
+  type = "running";
   constructor(coords, distance, duration, cadence) {
     super(coords, distance, duration);
     this.cadence = cadence;
     this.calcPace();
+    this._setDescription();
   }
   calcPace() {
     this.pace = this.duration / this.distance;
@@ -46,10 +39,12 @@ class Running extends Training {
 }
 
 class Cycling extends Training {
+  type = "cycling";
   constructor(coords, distance, duration, elevation) {
     super(coords, distance, duration);
     this.elevation = elevation;
     this.calcSpeed();
+    this._setDescription();
   }
   calcSpeed() {
     this.speed = this.distance / (this.duration / 60);
@@ -153,35 +148,83 @@ class App {
     }
     this._workouts.push(workout);
 
-
-    
-    
-
-    // рендер маркера тренировки 
-    this.renderWorkMarker(workout)
+    // рендер маркера тренировки
+    this._renderWorkMarker(workout);
+    // рендер
+    this._renderWorkOut(workout)
   }
-  renderWorkMarker(workout) {
+  _renderWorkMarker(workout) {
     L.marker(workout.coords)
-    .addTo(this._map)
-    .bindPopup(
-      L.popup({
-        maxWidth: 250,
-        minWidth: 100,
-        autoClose: false,
-        closeOnClick: false,
-        className: "mark-popup",
-      })
-    )
-    .setPopupContent('workout.distance')
-    .openPopup();
-  }
-}
+      .addTo(this._map)
+      .bindPopup(
+        L.popup({
+          maxWidth: 250,
+          minWidth: 100,
+          autoClose: false,
+          closeOnClick: false,
+          className: "mark-popup",
+        })
+      )
+      .setPopupContent("workout.distance")
+      .openPopup();
 
-inputDistance.value =
+      inputDistance.value =
       inputDuration.value =
       inputCadence.value =
       inputElevation.value =
         "";
+  }
+
+  // рендер списка тренеровок
+  _renderWorkOut(workout) {let html = `
+  <li class="workout workout--${workout.type}" data-id="${workout.id}">
+  <h2 class="workout__title">${workout.description}</h2>
+  <div class="workout__details">
+    <span class="workout__icon">${
+      workout.type === "running" ? "🏃‍♂️" : "🚴‍♀️"
+    }</span>
+    <span class="workout__value">${workout.distance}</span>
+    <span class="workout__unit">км</span>
+  </div>
+  <div class="workout__details">
+    <span class="workout__icon">⏱</span>
+    <span class="workout__value">${workout.duration}</span>
+    <span class="workout__unit">мин</span>
+  </div>`;
+  if (workout.type === "running") {
+    html += `
+        <div class="workout__details">
+          <span class="workout__icon">⚡️</span>
+          <span class="workout__value">${workout.pace.toFixed(1)}</span>
+          <span class="workout__unit">мин/км</span>
+        </div>
+        <div class="workout__details">
+          <span class="workout__icon">🦶🏼</span>
+          <span class="workout__value">${workout.cadence}</span>
+          <span class="workout__unit">шаг</span>
+        </div>
+      </li>
+      
+    `;
+  }
+  if (workout.type === "cycling") {
+    html += `
+      <div class="workout__details">
+        <span class="workout__icon">⚡️</span>
+        <span class="workout__value">${workout.speed.toFixed(1)}</span>
+        <span class="workout__unit">км/час</span>
+      </div>
+      <div class="workout__details">
+        <span class="workout__icon">⛰</span>
+        <span class="workout__value">${workout.elevation}</span>
+        <span class="workout__unit">м</span>
+      </div>
+    </li> 
+    `;
+  }
+  form.insertAdjacentHTML("afterend", html);
+  }
+}
 
 const app = new App();
 app._getPosition;
