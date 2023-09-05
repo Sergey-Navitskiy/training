@@ -152,6 +152,7 @@ class App {
     this._renderWorkMarker(workout);
     // рендер
     this._renderWorkOut(workout)
+    this._hideForm()
   }
   _renderWorkMarker(workout) {
     L.marker(workout.coords)
@@ -165,14 +166,18 @@ class App {
           className: "mark-popup",
         })
       )
-      .setPopupContent("workout.distance")
+      .setPopupContent(`${workout.type === "running" ? "🏃‍♂️" : "🚴‍♀️"} ${workout.description}`)
       .openPopup();
-
-      inputDistance.value =
+      //
+      
+  }
+  _hideForm(){
+    inputDistance.value =
       inputDuration.value =
       inputCadence.value =
       inputElevation.value =
         "";
+        form.classList.add('hidden')
   }
 
   // рендер списка тренеровок
