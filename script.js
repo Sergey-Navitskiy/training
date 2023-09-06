@@ -71,12 +71,14 @@ class App {
   _mapEv;
   constructor() {
     this._getPosition();
+    this._getLocalStorage()
     // обработчик который вызывает метод ньюВоркаут
     form.addEventListener("submit", this._newWorkout.bind(this));
 
     // Обработчик события который вызывает метод _toogleField.
     inputType.addEventListener("change", this._toogleField);
     containerWorkouts.addEventListener("click", this._moveToPopup.bind(this));
+
   }
 
   // метод запроса данных  о местоположении пользователя
@@ -107,6 +109,10 @@ class App {
 
     // Нажатие по карте
     this._map.on("click", this._showForm.bind(this));
+
+    this.workouts.forEach((work) => {
+      this._renderWorkMarker(work)
+    })
   }
 
   // Метод отображения формы
@@ -170,6 +176,7 @@ class App {
     // рендер
     this._renderWorkOut(workout);
     this._hideForm();
+    this._setLocalStorage()
   }
   _renderWorkMarker(workout) {
     L.marker(workout.coords)
@@ -263,7 +270,26 @@ class App {
       pan: { duration: 1 },
     });
   }
+
+  _setLocalStorage() {
+    localStorage.setItem('workouts', JSON.stringify(this._workouts))
+  }
+
+  _getLocalStorage() {
+    const data = JSON.parse(localStorage.getItem('workouts'))
+    if(!data) return
+    this.workouts = data 
+    this.workouts.forEach((work) => {
+      this._renderWorkOut(work)
+    })
+  }
+
+
+ reset() {
+  localStorage.removeItem('workouts')
+  location.reload()
+ }
 }
 
 const app = new App();
-app._getPosition;
+
