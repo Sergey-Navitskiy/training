@@ -17,7 +17,20 @@ class Training {
     this.duration = duration;
   }
   _setDescription() {
-    const months = ["January","February","March","April","May","June","July","August","September","October","November","December",];
+    const months = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
     this.description = `${this.type[0].toUpperCase()}${this.type.slice(1)} ${
       months[this.date.getMonth()]
     } ${this.date.getDate()}`;
@@ -58,8 +71,12 @@ class App {
   _mapEv;
   constructor() {
     this._getPosition();
+    // обработчик который вызывает метод ньюВоркаут
     form.addEventListener("submit", this._newWorkout.bind(this));
-    inputType.addEventListener("change", this._toogleField.bind(this));
+
+    // Обработчик события который вызывает метод _toogleField.
+    inputType.addEventListener("change", this._toogleField);
+    containerWorkouts.addEventListener("click", this._moveToPopup.bind(this));
   }
 
   // метод запроса данных  о местоположении пользователя
@@ -151,8 +168,8 @@ class App {
     // рендер маркера тренировки
     this._renderWorkMarker(workout);
     // рендер
-    this._renderWorkOut(workout)
-    this._hideForm()
+    this._renderWorkOut(workout);
+    this._hideForm();
   }
   _renderWorkMarker(workout) {
     L.marker(workout.coords)
@@ -166,22 +183,24 @@ class App {
           className: "mark-popup",
         })
       )
-      .setPopupContent(`${workout.type === "running" ? "🏃‍♂️" : "🚴‍♀️"} ${workout.description}`)
+      .setPopupContent(
+        `${workout.type === "running" ? "🏃‍♂️" : "🚴‍♀️"} ${workout.description}`
+      )
       .openPopup();
-      //
-      
+    //
   }
-  _hideForm(){
+  _hideForm() {
     inputDistance.value =
       inputDuration.value =
       inputCadence.value =
       inputElevation.value =
         "";
-        form.classList.add('hidden')
+    form.classList.add("hidden");
   }
 
   // рендер списка тренеровок
-  _renderWorkOut(workout) {let html = `
+  _renderWorkOut(workout) {
+    let html = `
   <li class="workout workout--${workout.type}" data-id="${workout.id}">
   <h2 class="workout__title">${workout.description}</h2>
   <div class="workout__details">
@@ -196,8 +215,8 @@ class App {
     <span class="workout__value">${workout.duration}</span>
     <span class="workout__unit">мин</span>
   </div>`;
-  if (workout.type === "running") {
-    html += `
+    if (workout.type === "running") {
+      html += `
         <div class="workout__details">
           <span class="workout__icon">⚡️</span>
           <span class="workout__value">${workout.pace.toFixed(1)}</span>
@@ -211,9 +230,9 @@ class App {
       </li>
       
     `;
-  }
-  if (workout.type === "cycling") {
-    html += `
+    }
+    if (workout.type === "cycling") {
+      html += `
       <div class="workout__details">
         <span class="workout__icon">⚡️</span>
         <span class="workout__value">${workout.speed.toFixed(1)}</span>
@@ -226,8 +245,23 @@ class App {
       </div>
     </li> 
     `;
+    }
+    form.insertAdjacentHTML("afterend", html);
   }
-  form.insertAdjacentHTML("afterend", html);
+
+  _moveToPopup(e) {
+    const workoutEL = e.target.closest(".workout");
+    console.log(workoutEL);
+    if (!workoutEL) return;
+
+    const workout = this._workouts.find(
+      (work) => work.id === workoutEL.dataset.id
+    );
+    console.log(workout);
+    this._map.setView(workout.coords, 13, {
+      animate: true,
+      pan: { duration: 1 },
+    });
   }
 }
 
